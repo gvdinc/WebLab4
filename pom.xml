@@ -70,6 +70,18 @@
       <version>2.6.0</version>
     </dependency>
 
+    <!-- postgres driver -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.5.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.platform</groupId>
+      <artifactId>jakarta.jakartaee-web-api</artifactId>
+      <version>8.0.0</version>
+    </dependency>
 
     <!-- OTHER -->
     <dependency>

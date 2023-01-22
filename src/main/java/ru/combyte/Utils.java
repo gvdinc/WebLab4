@@ -1,5 +1,7 @@
 package ru.combyte;
 
+import org.json.JSONObject;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -16,5 +18,10 @@ public class Utils {
             }
         }
         return notPresentedKeysList;
+    }
+
+    public static void appendProps(JSONObject root, JSONObject propsToAdd) {
+        propsToAdd.toMap()
+                .forEach((key, value) -> root.append(key, value));
     }
 }
