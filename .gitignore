@@ -1,4 +1,5 @@
 target
 .idea
 lib
+pom.xml
 Web4.iml
