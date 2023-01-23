@@ -239,7 +239,7 @@ public class LoginSystemController {
             root.put("wrong_type", new JSONArray(badTypeParams));
             return new ResponseEntity<>(root.toString(), HttpStatus.OK);
         }
-        var shot = AreaChecker.shot(x, y, r);
+        var shot = AreaChecker.shot(x, y, r, loginSessionState.getLogin());
         shotDAO.addShot(shot);
         var answerRoot = new JSONObject();
         answerRoot.put("hit", shot.isHit());
