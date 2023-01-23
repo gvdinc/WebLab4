@@ -27,7 +27,6 @@ public class LoginSystemController {
     private final static List<String> SHOT_REQUIRED_PARAMS;
     private final static int MIN_LOGIN_LENGTH = 5;
     private final static int MAX_LOGIN_LENGTH = 20;
-    private final static int PASSWORD_HASH_LENGTH = 8;
     private final static Pattern LOGIN_CHARS_PATTERN_CHECK =
             Pattern.compile("^[a-zA-Z0-9]{%s,%s}$".formatted(MIN_LOGIN_LENGTH, MAX_LOGIN_LENGTH));
 
@@ -192,9 +191,6 @@ public class LoginSystemController {
         var boundErrorValues = new LinkedList<String>();
         if (login.length() < MIN_LOGIN_LENGTH || MAX_LOGIN_LENGTH < login.length()) {
             boundErrorValues.add("login");
-        }
-        if (passwordHash.length() != PASSWORD_HASH_LENGTH) {
-            boundErrorValues.add("password_hash");
         }
         return boundErrorValues;
     }
