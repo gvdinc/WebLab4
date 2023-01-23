@@ -22,24 +22,9 @@ public class Main implements WebMvcConfigurer {
         SpringApplication.run(Main.class, args);
     }
 
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http.authorizeHttpRequests()
-//                .requestMatchers("/login", "/logout", "/register", "/shot", "/shots").hasAnyRole("USER")
-//                .permitAll();
-//        http.sessionManagement()
-//                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-//                .and()
-//                .cors()
-//                .and()
-//                .csrf().disable();
-//        return http.build();
-//    }
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http.authorizeRequests().requestMatchers("/shot", "/shots")
-                .hasAnyRole("USER")
+        return http.authorizeRequests()
                 .requestMatchers("/login", "/logout", "/register", "/shot", "/shots")
                 .permitAll()
                 .and()
