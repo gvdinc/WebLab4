@@ -1,7 +1,9 @@
 package ru.combyte.controller;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,19 +27,18 @@ public class LoginSystemController {
     private final static List<String> SHOT_REQUIRED_PARAMS;
     private final static int MIN_LOGIN_LENGTH = 5;
     private final static int MAX_LOGIN_LENGTH = 20;
-    private final static int MIN_PASSWORD_LENGTH = 8;
-    private final static int MAX_PASSWORD_LENGTH = 30;
+    private final static int PASSWORD_HASH_LENGTH = 8;
     private final static Pattern LOGIN_CHARS_PATTERN_CHECK =
             Pattern.compile("^[a-zA-Z0-9]{%s,%s}$".formatted(MIN_LOGIN_LENGTH, MAX_LOGIN_LENGTH));
 
     static {
         LOGIN_REQUIRED_PARAMS = Arrays.asList(new String[] {
                 "login",
-                "password"
+                "password_hash"
         });
         REGISTER_REQUIRED_PARAMS = Arrays.asList(new String[] {
                 "login",
-                "password"
+                "password_hash"
         });
         SHOT_REQUIRED_PARAMS = Arrays.asList(new String[] {
                 "x",
@@ -86,20 +87,31 @@ public class LoginSystemController {
         }
     }
 
-    @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> login(@RequestParam Map<String, String> params,
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> login(@RequestBody String sentJSONAsString,
                                         @ModelAttribute("loginSessionState") LoginSessionState loginSessionState) {
-        System.err.println(loginSessionState.isLogon());
-        var absentKeys = Utils.getNotPresentedKeysList(params, LOGIN_REQUIRED_PARAMS);
-        if (!absentKeys.isEmpty()) { // todo: add aop
+        JSONObject requestParams;
+        try {
+             requestParams = new JSONObject(sentJSONAsString);
+        } catch (JSONException e) {
+            return getWrongJSONStructureAnswer();
+        }
+        var absentKeys = Utils.getNotPresentedKeysList(requestParams.toMap(), LOGIN_REQUIRED_PARAMS);
+        if (!absentKeys.isEmpty()) {
             return getAbsentKeysAnswer(absentKeys);
         }
-        var login = params.get("login");
-        var password = params.get("password");
+        String login;
+        String passwordHash;
+        try {
+            login = requestParams.getString("login");
+            passwordHash = requestParams.getString("password_hash");
+        } catch (JSONException e) {
+            return getWrongJSONStructureAnswer();
+        }
         if (!loginSystemDAO.isLoginPresented(login)) {
             return new ResponseEntity<>(LoginState.WRONG_LOGIN.asJSON().toString(), HttpStatus.OK);
         }
-        if (loginSystemDAO.isUserPresented(login, password)) {
+        if (loginSystemDAO.isUserPresented(login, passwordHash)) {
             loginSessionState.setLogin(login);
             loginSessionState.setLogon(true);
             return new ResponseEntity<>(LoginState.LOGON.asJSON().toString(), HttpStatus.OK);
@@ -115,7 +127,6 @@ public class LoginSystemController {
 
     @PostMapping(value = "/logout", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> logout(@ModelAttribute("loginSessionState") LoginSessionState loginSessionState) {
-        System.out.println(loginSessionState.isLogon());
         if (!loginSessionState.isLogon()) {
             var root = new JSONObject();
             root.put("not_entered", true);
@@ -125,19 +136,31 @@ public class LoginSystemController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> register(@RequestParam Map<String, String> params) {
-        var absentKeys = Utils.getNotPresentedKeysList(params, REGISTER_REQUIRED_PARAMS);
+    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> register(@RequestBody String sentJSONAsString) {
+        JSONObject requestParams;
+        try {
+            requestParams = new JSONObject(sentJSONAsString);
+        } catch (JSONException e) {
+            return getWrongJSONStructureAnswer();
+        }
+        var absentKeys = Utils.getNotPresentedKeysList(requestParams.toMap(), REGISTER_REQUIRED_PARAMS);
         if (!absentKeys.isEmpty()) {
             return getAbsentKeysAnswer(absentKeys);
         }
-        var login = params.get("login");
-        var password = params.get("password");
+        String login;
+        String passwordHash;
+        try {
+            login = requestParams.getString("login");
+            passwordHash = requestParams.getString("password_hash");
+        } catch (JSONException e) {
+            return getWrongJSONStructureAnswer();
+        }
         if (loginSystemDAO.isLoginPresented(login)) {
             var duplicateLoginAnswerRoot = RegisterState.DUPLICATE_LOGIN.asJSON();
             return new ResponseEntity<>(duplicateLoginAnswerRoot.toString(), HttpStatus.OK);
         }
-        var boundErrorValues = getBoundErrorRegisterValues(login, password);
+        var boundErrorValues = getBoundErrorRegisterValues(login, passwordHash);
         if (!boundErrorValues.isEmpty()) {
             var wrongParamsLengthAnswerRoot = getRegisterUserParamsWrongLengthJSONAnswer(boundErrorValues);
             return new ResponseEntity<>(wrongParamsLengthAnswerRoot.toString(), HttpStatus.OK);
@@ -146,7 +169,7 @@ public class LoginSystemController {
             var wrongLoginCharsAnswerRoot = getRegisterLoginWrongPatternJSONAnswer();
             return new ResponseEntity<>(wrongLoginCharsAnswerRoot.toString(), HttpStatus.OK);
         }
-        loginSystemDAO.register(login, password);
+        loginSystemDAO.register(login, passwordHash);
         var registeredAnswerRoot = RegisterState.REGISTERED.asJSON();
         return new ResponseEntity<>(registeredAnswerRoot.toString(), HttpStatus.OK);
     }
@@ -165,44 +188,57 @@ public class LoginSystemController {
         return root;
     }
 
-    private List<String> getBoundErrorRegisterValues(String login, String password) {
+    private List<String> getBoundErrorRegisterValues(String login, String passwordHash) {
         var boundErrorValues = new LinkedList<String>();
         if (login.length() < MIN_LOGIN_LENGTH || MAX_LOGIN_LENGTH < login.length()) {
             boundErrorValues.add("login");
         }
-        if (password.length() < MIN_PASSWORD_LENGTH || MAX_PASSWORD_LENGTH < password.length()) {
-            boundErrorValues.add("password");
+        if (passwordHash.length() != PASSWORD_HASH_LENGTH) {
+            boundErrorValues.add("password_hash");
         }
         return boundErrorValues;
     }
 
-    @PostMapping(value = "/shot", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> shot(@RequestParam Map<String, String> params,
+    @PostMapping(value = "/shot", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> shot(@RequestBody String sentJSONAsString,
                                        @ModelAttribute("loginSessionState") LoginSessionState loginSessionState) {
         if (!loginSessionState.isLogon()) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        var absentKeys = Utils.getNotPresentedKeysList(params, SHOT_REQUIRED_PARAMS);
+        JSONObject requestParams;
+        try {
+            requestParams = new JSONObject(sentJSONAsString);
+        } catch (JSONException e) {
+            return getWrongJSONStructureAnswer();
+        }
+        var absentKeys = Utils.getNotPresentedKeysList(requestParams.toMap(), SHOT_REQUIRED_PARAMS);
         if (!absentKeys.isEmpty()) {
             return getAbsentKeysAnswer(absentKeys);
         }
-        // todo: user login check
-        var xString = params.get("x");
-        var yString = params.get("y");
-        var rString = params.get("R");
-        Map<String, String> nameToValue = new HashMap<>();
-        nameToValue.put("x", xString);
-        nameToValue.put("y", yString);
-        nameToValue.put("R", rString);
-        List<String> badTypeParams = getBadTypeShotParams(nameToValue);
+        double x = -1;
+        double y = -1;
+        double r = -1;
+        List<String> badTypeParams = new LinkedList<>();
+        try{
+            x = requestParams.getDouble("x");
+        } catch (JSONException e) {
+            badTypeParams.add("x");
+        }
+        try {
+            y = requestParams.getDouble("y");
+        } catch (JSONException e) {
+            badTypeParams.add("y");
+        }
+        try {
+            r = requestParams.getDouble("R");
+        } catch (JSONException e) {
+            badTypeParams.add("R");
+        }
         if (!badTypeParams.isEmpty()) {
             var root = new JSONObject();
             root.put("wrong_type", new JSONArray(badTypeParams));
             return new ResponseEntity<>(root.toString(), HttpStatus.OK);
         }
-        var x = Double.parseDouble(xString);
-        var y = Double.parseDouble(yString);
-        var r = Double.parseDouble(rString);
         var shot = AreaChecker.shot(x, y, r);
         shotDAO.addShot(shot);
         var answerRoot = new JSONObject();
@@ -212,21 +248,8 @@ public class LoginSystemController {
         return new ResponseEntity<>(answerRoot.toString(), HttpStatus.OK);
     }
 
-    private List<String> getBadTypeShotParams(Map<String, String> nameToValueMap) {
-        List<String> badTypeShotParams = new LinkedList<>();
-        for (Map.Entry<String, String> nameToValueEntry : nameToValueMap.entrySet()) {
-            try {
-                Double.parseDouble(nameToValueEntry.getValue());
-            } catch (NumberFormatException e) {
-                badTypeShotParams.add(nameToValueEntry.getKey());
-            }
-        }
-        return badTypeShotParams;
-    }
-
     @PostMapping(value = "/shots", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> shots(@ModelAttribute("loginSessionState") LoginSessionState loginSessionState) {
-        System.out.println(loginSessionState.isLogon());
         if (!loginSessionState.isLogon()) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -256,6 +279,12 @@ public class LoginSystemController {
         var root = new JSONObject();
         root.put("error_type", "absent_key");
         root.put("absent_keys", new JSONArray(absentKeys));
+        return new ResponseEntity<>(root.toString(), HttpStatus.BAD_REQUEST);
+    }
+
+    private ResponseEntity<Object> getWrongJSONStructureAnswer() {
+        var root = new JSONObject();
+        root.put("error_type", "wrong_json_structure");
         return new ResponseEntity<>(root.toString(), HttpStatus.BAD_REQUEST);
     }
 }

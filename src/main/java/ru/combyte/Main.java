@@ -6,12 +6,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @PropertySource("classpath:application.properties")
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity(debug = false)
 @SpringBootApplication
 public class Main implements WebMvcConfigurer {
     public static void main(String[] args) {
@@ -20,14 +21,16 @@ public class Main implements WebMvcConfigurer {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http.authorizeRequests()
+        return http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                .and()
+                .authorizeRequests()
                 .requestMatchers("/login", "/logout", "/register", "/shot", "/shots")
                 .permitAll()
                 .and()
                 .cors()
                 .and()
                 .csrf().disable()
-                .logout().logoutUrl("/logout").logoutSuccessUrl("/login").and().httpBasic().and().build();
+                .httpBasic().and().build();
     }
 
     @Override
