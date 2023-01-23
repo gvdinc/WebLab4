@@ -4,11 +4,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.MediaType;
 import ru.combyte.Utils;
 import ru.combyte.area.AreaChecker;
 import ru.combyte.beans.Shot;
@@ -46,10 +46,15 @@ public class LoginSystemController {
         });
     }
 
-    @Autowired
     private LoginSystemDAO loginSystemDAO;
-    @Autowired
     private ShotDAO shotDAO;
+
+
+    @Autowired
+    public LoginSystemController(LoginSystemDAO loginSystemDAO, ShotDAO shotDAO) {
+        this.loginSystemDAO = loginSystemDAO;
+        this.shotDAO = shotDAO;
+    }
 
     private enum LoginState {
         LOGON, WRONG_LOGIN, WRONG_PASSWORD;
@@ -61,7 +66,7 @@ public class LoginSystemController {
                 case WRONG_PASSWORD -> "wrong_password";
             };
             var root = new JSONObject();
-            root.append("login_state", loginStateValue);
+            root.put("login_state", loginStateValue);
             return root;
         }
     }
@@ -76,7 +81,7 @@ public class LoginSystemController {
                 case BAD_CONTENT -> "bad_content";
             };
             var root = new JSONObject();
-            root.append("register_state", registerStateValue);
+            root.put("register_state", registerStateValue);
             return root;
         }
     }
@@ -90,12 +95,12 @@ public class LoginSystemController {
         var login = params.get("login");
         var password = params.get("password");
         if (!loginSystemDAO.isLoginPresented(login)) {
-            return new ResponseEntity<>(LoginState.WRONG_LOGIN.asJSON(), HttpStatus.OK);
+            return new ResponseEntity<>(LoginState.WRONG_LOGIN.asJSON().toString(), HttpStatus.OK);
         }
         if (loginSystemDAO.isUserPresented(login, password)) {
-            return new ResponseEntity<>(LoginState.LOGON.asJSON(), HttpStatus.OK);
+            return new ResponseEntity<>(LoginState.LOGON.asJSON().toString(), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(LoginState.WRONG_PASSWORD.asJSON(), HttpStatus.OK);
+            return new ResponseEntity<>(LoginState.WRONG_PASSWORD.asJSON().toString(), HttpStatus.OK);
         }
     }
 
@@ -114,33 +119,33 @@ public class LoginSystemController {
         var password = params.get("password");
         if (loginSystemDAO.isLoginPresented(login)) {
             var duplicateLoginAnswerRoot = RegisterState.DUPLICATE_LOGIN.asJSON();
-            return new ResponseEntity<>(duplicateLoginAnswerRoot, HttpStatus.OK);
+            return new ResponseEntity<>(duplicateLoginAnswerRoot.toString(), HttpStatus.OK);
         }
         var boundErrorValues = getBoundErrorRegisterValues(login, password);
         if (!boundErrorValues.isEmpty()) {
             var wrongParamsLengthAnswerRoot = getRegisterUserParamsWrongLengthJSONAnswer(boundErrorValues);
-            return new ResponseEntity<>(wrongParamsLengthAnswerRoot, HttpStatus.OK);
+            return new ResponseEntity<>(wrongParamsLengthAnswerRoot.toString(), HttpStatus.OK);
         }
         if (!LOGIN_CHARS_PATTERN_CHECK.matcher(login).matches()) {
             var wrongLoginCharsAnswerRoot = getRegisterLoginWrongPatternJSONAnswer();
-            return new ResponseEntity<>(wrongLoginCharsAnswerRoot, HttpStatus.OK);
+            return new ResponseEntity<>(wrongLoginCharsAnswerRoot.toString(), HttpStatus.OK);
         }
         loginSystemDAO.register(login, password);
         var registeredAnswerRoot = RegisterState.REGISTERED.asJSON();
-        return new ResponseEntity<>(registeredAnswerRoot, HttpStatus.OK);
+        return new ResponseEntity<>(registeredAnswerRoot.toString(), HttpStatus.OK);
     }
 
     private JSONObject getRegisterLoginWrongPatternJSONAnswer() {
         var root = new JSONObject();
         Utils.appendProps(root, RegisterState.BAD_CONTENT.asJSON());
-        root.append("wrong_login_character", true);
+        root.put("wrong_login_character", true);
         return root;
     }
 
     private JSONObject getRegisterUserParamsWrongLengthJSONAnswer(List<String> wrongLengthParams) {
         var root = new JSONObject();
         Utils.appendProps(root, RegisterState.BAD_CONTENT.asJSON());
-        root.append("wrong_length_params", new JSONArray(wrongLengthParams));
+        root.put("wrong_length_params", new JSONArray(wrongLengthParams));
         return root;
     }
 
@@ -172,8 +177,8 @@ public class LoginSystemController {
         List<String> badTypeParams = getBadTypeShotParams(nameToValue);
         if (!badTypeParams.isEmpty()) {
             var root = new JSONObject();
-            root.append("wrong_type", new JSONArray(badTypeParams));
-            return new ResponseEntity<>(root, HttpStatus.OK);
+            root.put("wrong_type", new JSONArray(badTypeParams));
+            return new ResponseEntity<>(root.toString(), HttpStatus.OK);
         }
         var x = Double.parseDouble(xString);
         var y = Double.parseDouble(yString);
@@ -181,10 +186,10 @@ public class LoginSystemController {
         var shot = AreaChecker.shot(x, y, r);
         shotDAO.addShot(shot);
         var answerRoot = new JSONObject();
-        answerRoot.append("hit", shot.isHit());
-        answerRoot.append("datetime", shot.getDatetime().toInstant().toString());
-        answerRoot.append("processing_time_nano", shot.getProcessingTimeNano());
-        return new ResponseEntity<>(answerRoot, HttpStatus.OK);
+        answerRoot.put("hit", shot.isHit());
+        answerRoot.put("datetime", shot.getDatetime().toInstant().toString());
+        answerRoot.put("processing_time_nano", shot.getProcessingTimeNano());
+        return new ResponseEntity<>(answerRoot.toString(), HttpStatus.OK);
     }
 
     private List<String> getBadTypeShotParams(Map<String, String> nameToValueMap) {
@@ -203,20 +208,20 @@ public class LoginSystemController {
     public ResponseEntity<Object> shots() {
         var shots = shotDAO.getShots();
         var root = new JSONObject();
-        root.append("shots", shotsToJSONArray(shots));
-        return new ResponseEntity<>(root, HttpStatus.OK);
+        root.put("shots", shotsToJSONArray(shots));
+        return new ResponseEntity<>(root.toString(), HttpStatus.OK);
     }
 
     private JSONArray shotsToJSONArray(List<Shot> shots) {
         var shotsArray = new JSONArray(new LinkedList<>());
         for (var shot : shots) {
             var shotJSON = new JSONObject();
-            shotJSON.append("x", shot.getX());
-            shotJSON.append("y", shot.getY());
-            shotJSON.append("R", shot.getScope());
-            shotJSON.append("hit", shot.isHit());
-            shotJSON.append("datetime", shot.getDatetime().toInstant().toString());
-            shotJSON.append("processing_time_nano", shot.getProcessingTimeNano());
+            shotJSON.put("x", shot.getX());
+            shotJSON.put("y", shot.getY());
+            shotJSON.put("R", shot.getScope());
+            shotJSON.put("hit", shot.isHit());
+            shotJSON.put("datetime", shot.getDatetime().toInstant().toString());
+            shotJSON.put("processing_time_nano", shot.getProcessingTimeNano());
             shotsArray.put(shotJSON);
         }
         return shotsArray;
@@ -225,8 +230,8 @@ public class LoginSystemController {
 
     private ResponseEntity<Object> getAbsentKeysAnswer(List<String> absentKeys) {
         var root = new JSONObject();
-        root.append("error_type", "absent_key");
-        root.append("absent_keys", new JSONArray(absentKeys));
-        return new ResponseEntity<>(root, HttpStatus.BAD_REQUEST);
+        root.put("error_type", "absent_key");
+        root.put("absent_keys", new JSONArray(absentKeys));
+        return new ResponseEntity<>(root.toString(), HttpStatus.BAD_REQUEST);
     }
 }
