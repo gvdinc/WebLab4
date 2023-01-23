@@ -1,4 +1,4 @@
-package ru.combyte.dao;
+package ru.combyte.dao.login;
 
 public interface LoginSystemDAO {
     boolean isLoginPresented(String login);

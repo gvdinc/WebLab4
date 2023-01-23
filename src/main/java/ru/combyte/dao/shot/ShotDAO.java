@@ -1,4 +1,4 @@
-package ru.combyte.dao;
+package ru.combyte.dao.shot;
 
 import ru.combyte.beans.Shot;
 

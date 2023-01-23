@@ -1,4 +1,4 @@
-package ru.combyte.dao;
+package ru.combyte.dao.login;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

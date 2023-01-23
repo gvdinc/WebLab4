@@ -1,4 +1,4 @@
-package ru.combyte.dao;
+package ru.combyte.dao.shot;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

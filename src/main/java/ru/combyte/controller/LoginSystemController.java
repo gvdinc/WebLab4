@@ -1,6 +1,5 @@
 package ru.combyte.controller;
 
-import org.apache.commons.logging.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,13 +7,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
 import ru.combyte.Utils;
 import ru.combyte.area.AreaChecker;
 import ru.combyte.beans.LoginSessionState;
 import ru.combyte.beans.Shot;
-import ru.combyte.dao.LoginSystemDAO;
-import ru.combyte.dao.ShotDAO;
+import ru.combyte.dao.login.LoginSystemDAO;
+import ru.combyte.dao.shot.ShotDAO;
 
 import java.util.*;
 import java.util.regex.Pattern;
