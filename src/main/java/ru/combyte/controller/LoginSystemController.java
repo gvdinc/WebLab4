@@ -1,16 +1,17 @@
 package ru.combyte.controller;
 
+import org.apache.commons.logging.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 import ru.combyte.Utils;
 import ru.combyte.area.AreaChecker;
+import ru.combyte.beans.LoginSessionState;
 import ru.combyte.beans.Shot;
 import ru.combyte.dao.LoginSystemDAO;
 import ru.combyte.dao.ShotDAO;
@@ -19,6 +20,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 @RestController
+@SessionAttributes("loginSessionState")
 public class LoginSystemController {
     private final static List<String> LOGIN_REQUIRED_PARAMS;
     private final static List<String> REGISTER_REQUIRED_PARAMS;
@@ -87,7 +89,9 @@ public class LoginSystemController {
     }
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> login(@RequestParam Map<String, String> params) {
+    public ResponseEntity<Object> login(@RequestParam Map<String, String> params,
+                                        @ModelAttribute("loginSessionState") LoginSessionState loginSessionState) {
+        System.err.println(loginSessionState.isLogon());
         var absentKeys = Utils.getNotPresentedKeysList(params, LOGIN_REQUIRED_PARAMS);
         if (!absentKeys.isEmpty()) { // todo: add aop
             return getAbsentKeysAnswer(absentKeys);
@@ -98,15 +102,29 @@ public class LoginSystemController {
             return new ResponseEntity<>(LoginState.WRONG_LOGIN.asJSON().toString(), HttpStatus.OK);
         }
         if (loginSystemDAO.isUserPresented(login, password)) {
+            loginSessionState.setLogin(login);
+            loginSessionState.setLogon(true);
             return new ResponseEntity<>(LoginState.LOGON.asJSON().toString(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(LoginState.WRONG_PASSWORD.asJSON().toString(), HttpStatus.OK);
         }
     }
 
+    @ModelAttribute("loginSessionState")
+    public LoginSessionState getLoginSessionState() {
+        return new LoginSessionState();
+    }
+
     @PostMapping(value = "/logout", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> logout() {
-        return new ResponseEntity<>(new Object(), HttpStatus.BAD_REQUEST); // todo:
+    public ResponseEntity<Object> logout(@ModelAttribute("loginSessionState") LoginSessionState loginSessionState) {
+        System.out.println(loginSessionState.isLogon());
+        if (!loginSessionState.isLogon()) {
+            var root = new JSONObject();
+            root.put("not_entered", true);
+            return new ResponseEntity<>(root.toString(), HttpStatus.OK);
+        }
+        loginSessionState.setLogon(false);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -161,7 +179,11 @@ public class LoginSystemController {
     }
 
     @PostMapping(value = "/shot", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> shot(@RequestParam Map<String, String> params) {
+    public ResponseEntity<Object> shot(@RequestParam Map<String, String> params,
+                                       @ModelAttribute("loginSessionState") LoginSessionState loginSessionState) {
+        if (!loginSessionState.isLogon()) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         var absentKeys = Utils.getNotPresentedKeysList(params, SHOT_REQUIRED_PARAMS);
         if (!absentKeys.isEmpty()) {
             return getAbsentKeysAnswer(absentKeys);
@@ -205,7 +227,11 @@ public class LoginSystemController {
     }
 
     @PostMapping(value = "/shots", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> shots() {
+    public ResponseEntity<Object> shots(@ModelAttribute("loginSessionState") LoginSessionState loginSessionState) {
+        System.out.println(loginSessionState.isLogon());
+        if (!loginSessionState.isLogon()) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         var shots = shotDAO.getShots();
         var root = new JSONObject();
         root.put("shots", shotsToJSONArray(shots));
