@@ -20,15 +20,15 @@ public class LoginSystemPostgresService implements LoginSystemDAO {
     }
 
     @Override
-    public boolean isUserPresented(String login, String password) {
-        return loginSystemPostgresDAO.findByLoginAndPassword(login, password).isPresent();
+    public boolean isUserPresented(String login, String passwordHash) {
+        return loginSystemPostgresDAO.findByLoginAndPasswordHash(login, passwordHash).isPresent();
     }
 
     @Override
-    public void register(String login, String password) {
+    public void register(String login, String passwordHash) {
         var user = new User();
         user.setLogin(login);
-        user.setPassword(password);
+        user.setPasswordHash(passwordHash);
         loginSystemPostgresDAO.save(user);
     }
 }

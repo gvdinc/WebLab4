@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface LoginSystemPostgresDAO extends JpaRepository<User, Long> {
     Optional<User> findByLogin(String login);
-    Optional<User> findByLoginAndPassword(String login, String password);
+    Optional<User> findByLoginAndPasswordHash(String login, String passwordHash);
 }
