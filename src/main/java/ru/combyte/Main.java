@@ -22,30 +22,32 @@ public class Main implements WebMvcConfigurer {
         SpringApplication.run(Main.class, args);
     }
 
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http.authorizeHttpRequests()
+//                .requestMatchers("/login", "/logout", "/register", "/shot", "/shots").hasAnyRole("USER")
+//                .permitAll();
+//        http.sessionManagement()
+//                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+//                .and()
+//                .cors()
+//                .and()
+//                .csrf().disable();
+//        return http.build();
+//    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests()
-                .requestMatchers("/login", "/logout", "/register", "/shot", "/shots").hasRole("USER");
-        http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+        return http.authorizeRequests().requestMatchers("/shot", "/shots")
+                .hasAnyRole("USER")
+                .requestMatchers("/login", "/logout", "/register", "/shot", "/shots")
+                .permitAll()
                 .and()
                 .cors()
                 .and()
-                .csrf().disable();
-        return http.build();
+                .csrf().disable()
+                .logout().logoutUrl("/logout").logoutSuccessUrl("/login").and().httpBasic().and().build();
     }
-//        @Bean
-//        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//            return http.authorizeRequests().requestMatchers("/shot", "/shots")
-//                    .hasAnyRole("USER")
-//                    .requestMatchers("/login", "/logout", "register")
-//                    .permitAll()
-//                    .and()
-//                    .cors()
-//                    .and()
-//                    .csrf().disable()
-//                    .logout().logoutUrl("/logout").logoutSuccessUrl("/login").and().httpBasic().and().build();
-//        }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
