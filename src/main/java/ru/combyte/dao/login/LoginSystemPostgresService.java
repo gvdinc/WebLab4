@@ -2,7 +2,7 @@ package ru.combyte.dao.login;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.combyte.beans.User;
+import ru.combyte.enitities.User;
 
 @Component
 public class LoginSystemPostgresService implements LoginSystemDAO {
@@ -12,7 +12,6 @@ public class LoginSystemPostgresService implements LoginSystemDAO {
     public LoginSystemPostgresService(LoginSystemPostgresDAO loginSystemPostgresDAO) {
         this.loginSystemPostgresDAO = loginSystemPostgresDAO;
     }
-
 
     @Override
     public boolean isLoginPresented(String login) {

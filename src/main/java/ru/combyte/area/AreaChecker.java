@@ -1,6 +1,7 @@
 package ru.combyte.area;
 
-import ru.combyte.beans.Shot;
+import lombok.NonNull;
+import ru.combyte.enitities.Shot;
 
 import java.util.Date;
 
@@ -16,6 +17,17 @@ public class AreaChecker {
         shot.setOwnerLogin(login);
         shot.setProcessingTimeNano(System.nanoTime() - calculationsBeginTime);
         return shot;
+    }
+
+    /**
+     * @throws NullPointerException if shot is null
+     * @throws IllegalArgumentException if x, y or scope is null
+     */
+    public static boolean checkHit(@NonNull Shot shot) {
+        if (shot.getX() == null || shot.getY() == null || shot.getScope() == null) {
+            throw new IllegalArgumentException("null values on important for checkHit fields");
+        }
+        return checkHit(shot.getX(), shot.getY(), shot.getScope());
     }
 
     public static boolean checkHit(double x, double y, double scope) {

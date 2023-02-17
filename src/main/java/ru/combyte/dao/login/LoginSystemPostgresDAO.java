@@ -2,7 +2,7 @@ package ru.combyte.dao.login;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.combyte.beans.User;
+import ru.combyte.enitities.User;
 
 import java.util.Optional;
 

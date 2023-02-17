@@ -1,6 +1,6 @@
 package ru.combyte.dao.shot;
 
-import ru.combyte.beans.Shot;
+import ru.combyte.enitities.Shot;
 
 import java.util.List;
 

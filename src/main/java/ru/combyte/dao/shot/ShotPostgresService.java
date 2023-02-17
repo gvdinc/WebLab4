@@ -2,7 +2,7 @@ package ru.combyte.dao.shot;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.combyte.beans.Shot;
+import ru.combyte.enitities.Shot;
 
 import java.util.List;
 
