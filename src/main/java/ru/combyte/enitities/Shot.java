@@ -20,6 +20,7 @@ public class Shot {
     @JsonIgnore
     private Long id;
     @Column(name="owner_login")
+    @JsonIgnore
     private String ownerLogin;
     @Column(name = "x_coordinate")
     @JsonProperty("x")

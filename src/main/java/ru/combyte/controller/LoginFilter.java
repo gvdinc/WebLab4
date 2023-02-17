@@ -41,7 +41,6 @@ public class LoginFilter implements Filter {
             ServletRequest request,
             ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
-        System.out.println("hello");
         var httpResponse = (HttpServletResponse) response;
         var wrappedRequest = new ContentCachingRequestWrapper((HttpServletRequest) request);
         wrappedRequest.getInputStream(); // this line is necessary to cache InputStream
