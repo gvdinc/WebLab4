@@ -3,12 +3,12 @@ package ru.combyte.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -27,13 +27,10 @@ import static ru.combyte.controller.utils.LoginControllerUtils.getWrongLengthVal
 import static ru.combyte.jsonSended.answers.LoginState.State.*;
 import static ru.combyte.jsonSended.errors.ErrorType.Type.*;
 
-@Component
-@WebFilter(urlPatterns = {"/login", "/shot", "/shots"})
 public class LoginFilter implements Filter {
     public LoginSystemDAO loginSystemDAO;
     public ObjectMapper objectMapper;
 
-    @Autowired
     public LoginFilter(LoginSystemDAO loginSystemDAO, ObjectMapper objectMapper) {
         this.loginSystemDAO = loginSystemDAO;
         this.objectMapper = objectMapper;
@@ -44,6 +41,7 @@ public class LoginFilter implements Filter {
             ServletRequest request,
             ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
+        System.out.println("hello");
         var httpResponse = (HttpServletResponse) response;
         var wrappedRequest = new ContentCachingRequestWrapper((HttpServletRequest) request);
         wrappedRequest.getInputStream(); // this line is necessary to cache InputStream

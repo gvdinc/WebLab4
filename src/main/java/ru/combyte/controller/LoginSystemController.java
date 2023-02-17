@@ -50,9 +50,7 @@ public class LoginSystemController {
     @PostMapping(value = "/register",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> register(HttpServletRequest request) {
-        var cachedHttpRequest = (ContentCachingRequestWrapper) request;
-        var user = objectMapper.readValue(cachedHttpRequest.getContentAsByteArray(), User.class);
+    public ResponseEntity<Object> register(@RequestBody User user) {
         var registerStructureMissingKeys = LoginControllerUtils.getCommandWithFullUserMissingKeys(user);
         if (!registerStructureMissingKeys.isEmpty()) {
             var errorType = new ErrorType(ABSENT_KEY, registerStructureMissingKeys);
