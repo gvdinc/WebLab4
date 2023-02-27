@@ -22,7 +22,6 @@ public class ShotControllerUtils {
 //
     /**
      * @return empty list, if hasn't. Return key-names as @JsonProperty value else
-     * @throws NullPointerException if user is null
      */
     @SneakyThrows
     public static List<String> getCommandWithClientShotMissingKeys(@NonNull Shot shot) {
@@ -42,7 +41,6 @@ public class ShotControllerUtils {
 
     /**
      * @return empty list, if hasn't. Return key-names as @JsonProperty value else
-     * @throws NullPointerException if user is null
      */
     public static List<String> getWrongValueValues(@NonNull Shot shot) {
         var wrongValueValues = new LinkedList<String>();

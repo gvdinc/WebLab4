@@ -12,7 +12,6 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 import ru.combyte.area.AreaChecker;
 import ru.combyte.controller.utils.ShotControllerUtils;
 import ru.combyte.dao.shot.ShotDAO;
-import ru.combyte.enitities.LoginSessionState;
 import ru.combyte.enitities.Shot;
 import ru.combyte.enitities.User;
 import ru.combyte.jsonSended.answers.ShotAnswer;

@@ -15,7 +15,6 @@ import static ru.combyte.Utils.getJsonProperty;
 public class LoginControllerUtils {
     /**
      * @return empty list, if hasn't. Return key-names as @JsonProperty value else
-     * @throws NullPointerException if user is null
      */
     @SneakyThrows
     public static List<String> getCommandWithFullUserMissingKeys(@NonNull User user) {
@@ -29,9 +28,6 @@ public class LoginControllerUtils {
         return missingKeys;
     }
 
-    /**
-     * @throws NullPointerException if user is null
-     */
     public static List<String> getWrongLengthValues(@NonNull User user) {
         var wrongLengthValues = new LinkedList<String>();
         if (!LoginValidator.isOkLength(user)) {
@@ -43,9 +39,6 @@ public class LoginControllerUtils {
         return wrongLengthValues;
     }
 
-    /**
-     * @throws NullPointerException if user is null
-     */
     public static List<String> getWrongCharactersValues(User user) {
         var wrongCharactersValues = new LinkedList<String>();
         if (!LoginValidator.isOkCharacters(user)) {

@@ -20,7 +20,6 @@ public class LoginState {
 
     /**
      * @throws IllegalArgumentException if state is WRONG_CHARACTER or WRONG_LENGTH - should have wrongParams list, use another constructor
-     * @throws NullPointerException if state is null
      */
     public LoginState(@NonNull State state) {
         this(state, null);
@@ -29,7 +28,6 @@ public class LoginState {
     /**
      * @param wrongParams null if state is not WRONG_CHARACTER or WRONG_LENGTH
      * @throws IllegalArgumentException if wrongParams is not null when not WRONG_CHARACTER or WRONG_LENGTH or if null or empty when it is
-     * @throws NullPointerException if state is null
      */
     public LoginState(@NonNull State state, List<String> wrongParams) {
         switch (state) {

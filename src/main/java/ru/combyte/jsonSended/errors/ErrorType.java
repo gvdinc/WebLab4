@@ -16,7 +16,6 @@ public class ErrorType {
 
     /**
      * @throws IllegalArgumentException if type is ABSENT_KEY - should have absentKeys list, use another constructor
-     * @throws NullPointerException if type is null
      */
     public ErrorType(@NonNull Type type) {
         this(type, null);
@@ -25,7 +24,6 @@ public class ErrorType {
     /**
      * @param absentKeys null if type is not ABSENT_KEY
      * @throws IllegalArgumentException if absentKeys is not null when not ABSENT_KEY or if null or empty when it is
-     * @throws NullPointerException if type is null
      */
     public ErrorType(@NonNull Type type, List<String> absentKeys) {
         switch (type) {

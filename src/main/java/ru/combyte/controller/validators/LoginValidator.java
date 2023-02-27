@@ -10,9 +10,6 @@ public class LoginValidator {
     private final static int MAX_LENGTH = 20;
     private final static Pattern CHARACTERS_PATTERN = Pattern.compile("^[a-zA-Z_]*$");
 
-    /**
-     * @throws NullPointerException if user is null
-     */
     public static boolean isOkLength(@NonNull User user) {
         return isOkLength(user.getLogin());
     }
@@ -21,9 +18,6 @@ public class LoginValidator {
         return MIN_LENGTH <= login.length() && login.length() <= MAX_LENGTH;
     }
 
-    /**
-     * @throws NullPointerException if user is null
-     */
     public static boolean isOkCharacters(@NonNull User user) {
         return isOkCharacters(user.getLogin());
     }

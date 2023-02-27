@@ -7,10 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import ru.combyte.Utils;
 import ru.combyte.controller.utils.LoginControllerUtils;
@@ -81,7 +78,6 @@ public class LoginFilter implements Filter {
 
     /**
      * @return null if logon
-     * @throws NullPointerException if user is null
      */
     @SneakyThrows
     private Optional<String> getBadBusinessLoginStateAsExceptionJson(@NonNull User user) {
@@ -106,16 +102,12 @@ public class LoginFilter implements Filter {
         return getLoginStateAsOptionalJson(loginState);
     }
 
-    /**
-     * @throws NullPointerException if loginState is null
-     */
     private Optional<String> getLoginStateAsOptionalJson(@NonNull LoginState loginState) throws JsonProcessingException {
         return Optional.of(objectMapper.writeValueAsString(loginState));
     }
 
     /**
      * @return None if user format is bad
-     * @throws NullPointerException if user is null
      */
     private Optional<String> getBadUserJsonValueAsErrorJson(@NonNull User user) {
         var absentKeysError = getAbsentKeysErrorAsErrorJson(user);
@@ -127,7 +119,6 @@ public class LoginFilter implements Filter {
 
     /**
      * @return None if user format is bad
-     * @throws NullPointerException if user is null
      */
     private Optional<String> getBadUserBusinessValuesAsExceptionJson(@NonNull User user) {
         var wrongLengthValuesException = getWrongLengthValuesAsExceptionJson(user);
@@ -143,7 +134,6 @@ public class LoginFilter implements Filter {
 
     /**
      * @return None if hasn't absent keys
-     * @throws NullPointerException if user is null
      */
     @SneakyThrows
     private Optional<String> getAbsentKeysErrorAsErrorJson(@NonNull User user) {
@@ -157,7 +147,6 @@ public class LoginFilter implements Filter {
 
     /**
      * @return None if hasn't wrong values
-     * @throws NullPointerException if user is null
      */
     @SneakyThrows
     private Optional<String> getWrongCharactersValuesAsExceptionJson(@NonNull User user) {
@@ -171,7 +160,6 @@ public class LoginFilter implements Filter {
 
     /**
      * @return None if hasn't wrong values
-     * @throws NullPointerException if user is null
      */
     @SneakyThrows
     private Optional<String> getWrongLengthValuesAsExceptionJson(@NonNull User user) {
