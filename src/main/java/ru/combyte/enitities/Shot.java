@@ -19,6 +19,8 @@ public class Shot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private Long id;
+    @Column(name="area_id")
+    private String areaID;
     @Column(name="owner_login")
     @JsonIgnore
     private String ownerLogin;
@@ -43,5 +45,16 @@ public class Shot {
     @JsonProperty("datetime")
     public String getDateAsISO8601() {
         return Utils.getDateAsISO8601(datetime);
+    }
+
+    @JsonProperty("area_id")
+    @JsonIgnore
+    public String getAreaID() {
+        return areaID;
+    }
+
+    @JsonProperty("area_id")
+    public void setAreaID(String areaID) {
+        this.areaID = areaID;
     }
 }

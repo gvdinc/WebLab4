@@ -1,14 +1,11 @@
-package ru.combyte.jsonSended.answers;
+package ru.combyte.enitities.json.sended.answers;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
-import ru.combyte.Utils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import ru.combyte.enitities.Shot;
 
-import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -31,7 +28,6 @@ public class ShotAnswer {
 
     /**
      * wrongTypeValues remains null
-     * @throws NullPointerException if hit, datetime or processingTimeNano is null
      */
     public ShotAnswer(@NonNull Shot shot) {
         this(shot.getHit(), shot.getDatetime(), shot.getProcessingTimeNano());
@@ -39,7 +35,6 @@ public class ShotAnswer {
 
     /**
      * wrongTypeValues remains null
-     * @throws NullPointerException if datetime is null
      */
     public ShotAnswer(boolean hit, @NonNull Date datetime, long processingTimeNano) {
         this.hit = hit;
@@ -49,7 +44,6 @@ public class ShotAnswer {
 
     /**
      * hit, datetime, processingTimeNano and wrongValueValue remain null
-     * @throws NullPointerException if wrongTypeValues is null
      * @throws IllegalArgumentException if wrongTypeValues is empty
      */
     public static ShotAnswer initWrongTypeValuesAnswer(@NonNull List<String> wrongTypeValues) {
@@ -60,7 +54,6 @@ public class ShotAnswer {
 
     /**
      * hit, datetime, processingTimeNano and wrongTypeValues remain null
-     * @throws NullPointerException if wrongValueValues is null
      * @throws IllegalArgumentException if wrongValueValues is empty
      */
     public static ShotAnswer initWrongValueValuesAnswer(@NonNull List<String> wrongValueValues) {

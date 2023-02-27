@@ -1,4 +1,4 @@
-package ru.combyte.jsonSended.errors;
+package ru.combyte.enitities.json.sended.errors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;

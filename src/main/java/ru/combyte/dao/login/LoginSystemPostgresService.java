@@ -2,7 +2,8 @@ package ru.combyte.dao.login;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.combyte.enitities.User;
+import ru.combyte.enitities.db.UserDb;
+import ru.combyte.enitities.json.received.UserJson;
 
 @Component
 public class LoginSystemPostgresService implements LoginSystemDAO {
@@ -19,15 +20,16 @@ public class LoginSystemPostgresService implements LoginSystemDAO {
     }
 
     @Override
-    public boolean isUserPresented(String login, String passwordHash) {
+    public boolean isUserPresented(String login, String password) {
+        String passwordHash = UserDb.getPasswordHash(password);
         return loginSystemPostgresDAO.findByLoginAndPasswordHash(login, passwordHash).isPresent();
     }
 
     @Override
-    public void register(String login, String passwordHash) {
-        var user = new User();
+    public void register(String login, String password) {
+        var user = new UserDb();
         user.setLogin(login);
-        user.setPasswordHash(passwordHash);
+        user.setPasswordHash(UserDb.getPasswordHash(password));
         loginSystemPostgresDAO.save(user);
     }
 }

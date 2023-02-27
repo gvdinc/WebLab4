@@ -31,16 +31,19 @@ public class Main implements WebMvcConfigurer {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
-                .and()
+        return http
+                .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.NEVER)
+                    .and()
                 .authorizeRequests()
-                .requestMatchers("/login", "/logout", "/register", "/shot", "/shots")
-                .permitAll()
-                .and()
-                .cors()
-                .and()
-                .csrf().disable()
-                .httpBasic().and().build();
+                    .requestMatchers("/login", "/logout", "/register", "/shot", "/shots")
+                    .permitAll()
+                    .and()
+                .csrf()
+                    .disable()
+                    .httpBasic()
+                    .and()
+                .build();
     }
 
     @Override

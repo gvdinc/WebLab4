@@ -1,11 +1,9 @@
-package ru.combyte.jsonSended.answers;
+package ru.combyte.enitities.json.sended.answers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
-import ru.combyte.controller.LoginFilter;
 
 import java.util.List;
 

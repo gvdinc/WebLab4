@@ -1,4 +1,4 @@
-package ru.combyte.jsonSended.answers;
+package ru.combyte.enitities.json.sended.answers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

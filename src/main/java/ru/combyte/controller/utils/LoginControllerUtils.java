@@ -1,11 +1,9 @@
 package ru.combyte.controller.utils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import ru.combyte.controller.validators.LoginValidator;
-import ru.combyte.controller.validators.PasswordHashValidator;
-import ru.combyte.enitities.Shot;
-import ru.combyte.enitities.User;
+import ru.combyte.controller.validators.PasswordValidator;
+import ru.combyte.enitities.json.received.UserJson;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,34 +15,34 @@ public class LoginControllerUtils {
      * @return empty list, if hasn't. Return key-names as @JsonProperty value else
      */
     @SneakyThrows
-    public static List<String> getCommandWithFullUserMissingKeys(@NonNull User user) {
+    public static List<String> getCommandWithFullUserMissingKeys(@NonNull UserJson user) {
         var missingKeys = new LinkedList<String>();
         if (user.getLogin() == null) {
             missingKeys.add(getJsonProperty(user, "login"));
         }
-        if (user.getPasswordHash() == null) {
-            missingKeys.add(getJsonProperty(user, "passwordHash"));
+        if (user.getPassword() == null) {
+            missingKeys.add(getJsonProperty(user, "password"));
         }
         return missingKeys;
     }
 
-    public static List<String> getWrongLengthValues(@NonNull User user) {
+    public static List<String> getWrongLengthValues(@NonNull UserJson user) {
         var wrongLengthValues = new LinkedList<String>();
         if (!LoginValidator.isOkLength(user)) {
             wrongLengthValues.add("login");
         }
-        if (!PasswordHashValidator.isOkLength(user)) {
+        if (!PasswordValidator.isOkLength(user)) {
             wrongLengthValues.add("password");
         }
         return wrongLengthValues;
     }
 
-    public static List<String> getWrongCharactersValues(User user) {
+    public static List<String> getWrongCharactersValues(UserJson user) {
         var wrongCharactersValues = new LinkedList<String>();
         if (!LoginValidator.isOkCharacters(user)) {
             wrongCharactersValues.add("login");
         }
-        if (!PasswordHashValidator.isOkCharacters(user)) {
+        if (!PasswordValidator.isOkCharacters(user)) {
             wrongCharactersValues.add("password");
         }
         return wrongCharactersValues;

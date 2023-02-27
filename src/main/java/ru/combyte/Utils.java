@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -49,11 +50,27 @@ public class Utils {
                 if (jsonProperty != null) {
                     return jsonProperty.value();
                 } else {
-                    throw new IllegalStateException();
+                    return getMethodJsonProperty(object, fieldName);
                 }
             }
         }
         throw new IllegalAccessException("Object %s hasn't the field %s".formatted(object, fieldName));
+    }
+
+    private static String getMethodJsonProperty(@NonNull Object object, @NonNull String fieldName) throws IllegalAccessException {
+        Method[] methods = object.getClass().getDeclaredMethods();
+        String getMethodName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        for (Method m : methods) {
+            if (m.getName().equals(getMethodName)) {
+                JsonProperty jsonProperty = m.getDeclaredAnnotation(JsonProperty.class);
+                if (jsonProperty != null) {
+                    return jsonProperty.value();
+                } else {
+                    throw new IllegalStateException();
+                }
+            }
+        }
+        throw new IllegalAccessException("Object %s hasn't the field and getter of %s".formatted(object, fieldName));
     }
 
 

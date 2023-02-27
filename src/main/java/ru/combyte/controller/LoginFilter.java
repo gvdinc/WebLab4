@@ -12,17 +12,17 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 import ru.combyte.Utils;
 import ru.combyte.controller.utils.LoginControllerUtils;
 import ru.combyte.dao.login.LoginSystemDAO;
-import ru.combyte.enitities.User;
-import ru.combyte.jsonSended.answers.LoginState;
-import ru.combyte.jsonSended.errors.ErrorType;
+import ru.combyte.enitities.json.received.UserJson;
+import ru.combyte.enitities.json.sended.answers.LoginState;
+import ru.combyte.enitities.json.sended.errors.ErrorType;
 
 import java.io.IOException;
 import java.util.Optional;
 
 import static ru.combyte.controller.utils.LoginControllerUtils.getWrongCharactersValues;
 import static ru.combyte.controller.utils.LoginControllerUtils.getWrongLengthValues;
-import static ru.combyte.jsonSended.answers.LoginState.State.*;
-import static ru.combyte.jsonSended.errors.ErrorType.Type.*;
+import static ru.combyte.enitities.json.sended.answers.LoginState.State.*;
+import static ru.combyte.enitities.json.sended.errors.ErrorType.Type.*;
 
 public class LoginFilter implements Filter {
     public LoginSystemDAO loginSystemDAO;
@@ -41,9 +41,9 @@ public class LoginFilter implements Filter {
         var httpResponse = (HttpServletResponse) response;
         var wrappedRequest = new ContentCachingRequestWrapper((HttpServletRequest) request);
         wrappedRequest.getInputStream(); // this line is necessary to cache InputStream
-        User user;
+        UserJson user;
         try {
-            user = objectMapper.readValue(wrappedRequest.getInputStream(), User.class);
+            user = objectMapper.readValue(wrappedRequest.getInputStream(), UserJson.class);
         } catch (JsonProcessingException e) {
             Utils.writeJsonContent(httpResponse, getBrokenJsonStructureErrorAsJson());
             httpResponse.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
@@ -80,11 +80,11 @@ public class LoginFilter implements Filter {
      * @return null if logon
      */
     @SneakyThrows
-    private Optional<String> getBadBusinessLoginStateAsExceptionJson(@NonNull User user) {
+    private Optional<String> getBadBusinessLoginStateAsExceptionJson(@NonNull UserJson user) {
         if (!loginSystemDAO.isLoginPresented(user.getLogin())) {
             return getWrongLoginAsErrorAsJsonError();
         }
-        if (!loginSystemDAO.isUserPresented(user.getLogin(), user.getPasswordHash())) {
+        if (!loginSystemDAO.isUserPresented(user.getLogin(), user.getPassword())) {
             return getWrongPasswordAsErrorAsJsonError();
         }
         return Optional.empty();
@@ -109,7 +109,7 @@ public class LoginFilter implements Filter {
     /**
      * @return None if user format is bad
      */
-    private Optional<String> getBadUserJsonValueAsErrorJson(@NonNull User user) {
+    private Optional<String> getBadUserJsonValueAsErrorJson(@NonNull UserJson user) {
         var absentKeysError = getAbsentKeysErrorAsErrorJson(user);
         if (absentKeysError.isPresent()) {
             return absentKeysError;
@@ -120,7 +120,7 @@ public class LoginFilter implements Filter {
     /**
      * @return None if user format is bad
      */
-    private Optional<String> getBadUserBusinessValuesAsExceptionJson(@NonNull User user) {
+    private Optional<String> getBadUserBusinessValuesAsExceptionJson(@NonNull UserJson user) {
         var wrongLengthValuesException = getWrongLengthValuesAsExceptionJson(user);
         if (wrongLengthValuesException.isPresent()) {
             return wrongLengthValuesException;
@@ -136,7 +136,7 @@ public class LoginFilter implements Filter {
      * @return None if hasn't absent keys
      */
     @SneakyThrows
-    private Optional<String> getAbsentKeysErrorAsErrorJson(@NonNull User user) {
+    private Optional<String> getAbsentKeysErrorAsErrorJson(@NonNull UserJson user) {
         var loginCommandStructureMissingKeys = LoginControllerUtils.getCommandWithFullUserMissingKeys(user);
         if (!loginCommandStructureMissingKeys.isEmpty()) {
             var errorType = new ErrorType(ABSENT_KEY, loginCommandStructureMissingKeys);
@@ -149,7 +149,7 @@ public class LoginFilter implements Filter {
      * @return None if hasn't wrong values
      */
     @SneakyThrows
-    private Optional<String> getWrongCharactersValuesAsExceptionJson(@NonNull User user) {
+    private Optional<String> getWrongCharactersValuesAsExceptionJson(@NonNull UserJson user) {
         var wrongCharactersValues = getWrongCharactersValues(user);
         if (!wrongCharactersValues.isEmpty()) {
             var loginState = new LoginState(WRONG_CHARACTER, wrongCharactersValues);
@@ -162,7 +162,7 @@ public class LoginFilter implements Filter {
      * @return None if hasn't wrong values
      */
     @SneakyThrows
-    private Optional<String> getWrongLengthValuesAsExceptionJson(@NonNull User user) {
+    private Optional<String> getWrongLengthValuesAsExceptionJson(@NonNull UserJson user) {
         var wrongLengthValues = getWrongLengthValues(user);
         if (!wrongLengthValues.isEmpty()) {
             var loginState = new LoginState(WRONG_LENGTH, wrongLengthValues);
