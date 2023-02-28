@@ -26,24 +26,26 @@ public class LoginControllerUtils {
         return missingKeys;
     }
 
+    @SneakyThrows
     public static List<String> getWrongLengthValues(@NonNull UserJson user) {
         var wrongLengthValues = new LinkedList<String>();
         if (!LoginValidator.isOkLength(user)) {
-            wrongLengthValues.add("login");
+            wrongLengthValues.add(getJsonProperty(user, "login"));
         }
         if (!PasswordValidator.isOkLength(user)) {
-            wrongLengthValues.add("password");
+            wrongLengthValues.add(getJsonProperty(user, "password"));
         }
         return wrongLengthValues;
     }
 
+    @SneakyThrows
     public static List<String> getWrongCharactersValues(UserJson user) {
         var wrongCharactersValues = new LinkedList<String>();
         if (!LoginValidator.isOkCharacters(user)) {
-            wrongCharactersValues.add("login");
+            wrongCharactersValues.add(getJsonProperty(user, "login"));
         }
         if (!PasswordValidator.isOkCharacters(user)) {
-            wrongCharactersValues.add("password");
+            wrongCharactersValues.add(getJsonProperty(user, "password"));
         }
         return wrongCharactersValues;
     }

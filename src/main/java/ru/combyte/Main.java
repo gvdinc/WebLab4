@@ -36,7 +36,7 @@ public class Main implements WebMvcConfigurer {
                     .sessionCreationPolicy(SessionCreationPolicy.NEVER)
                     .and()
                 .authorizeRequests()
-                    .requestMatchers("/login", "/logout", "/register", "/shot", "/shots")
+                    .anyRequest()
                     .permitAll()
                     .and()
                 .csrf()

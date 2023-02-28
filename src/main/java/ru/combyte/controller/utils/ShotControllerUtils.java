@@ -60,7 +60,7 @@ public class ShotControllerUtils {
             wrongValueValues.add(getJsonProperty(shot,"y"));
         }
         if (!ShotValidator.isScopeOk(shot)) {
-            wrongValueValues.add(getJsonProperty(shot, "R"));
+            wrongValueValues.add(getJsonProperty(shot, "scope"));
         }
         return wrongValueValues;
     }

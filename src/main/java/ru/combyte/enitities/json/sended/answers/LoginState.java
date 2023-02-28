@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.extern.java.Log;
 
 import java.util.List;
 
@@ -28,6 +29,21 @@ public class LoginState {
      * @throws IllegalArgumentException if wrongParams is not null when not WRONG_CHARACTER or WRONG_LENGTH or if null or empty when it is
      */
     public LoginState(@NonNull State state, List<String> wrongParams) {
+        LoginState.checkCorrespond(state, wrongParams);
+        this.state = state;
+        switch (state) {
+            case WRONG_CHARACTER -> {
+                this.wrongCharacterParams = wrongParams;
+            }
+            case WRONG_LENGTH -> {
+                this.wrongLengthParams = wrongParams;
+            }
+        }
+    }
+    /**
+     * @throws IllegalArgumentException if wrongParams is not null when not WRONG_CHARACTER or WRONG_LENGTH or if null or empty when it is
+     */
+    public static void checkCorrespond(@NonNull State state, List<String> wrongParams) throws IllegalArgumentException {
         switch (state) {
             case WRONG_CHARACTER, WRONG_LENGTH -> {
                 if (wrongParams == null || wrongParams.isEmpty()) {
@@ -40,16 +56,8 @@ public class LoginState {
                 }
             }
         }
-        this.state = state;
-        switch (state) {
-            case WRONG_CHARACTER -> {
-                this.wrongCharacterParams = wrongParams;
-            }
-            case WRONG_LENGTH -> {
-                this.wrongLengthParams = wrongParams;
-            }
-        }
     }
+
     public enum State {
         LOGON, WRONG_LOGIN, WRONG_PASSWORD, WRONG_CHARACTER, WRONG_LENGTH;
 

@@ -43,16 +43,6 @@ public class ShotAnswer {
     }
 
     /**
-     * hit, datetime, processingTimeNano and wrongValueValue remain null
-     * @throws IllegalArgumentException if wrongTypeValues is empty
-     */
-    public static ShotAnswer initWrongTypeValuesAnswer(@NonNull List<String> wrongTypeValues) {
-        var shotAnswer = new ShotAnswer();
-        shotAnswer.setWrongTypeValues(wrongTypeValues);
-        return shotAnswer;
-    }
-
-    /**
      * hit, datetime, processingTimeNano and wrongTypeValues remain null
      * @throws IllegalArgumentException if wrongValueValues is empty
      */

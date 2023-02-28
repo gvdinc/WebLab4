@@ -26,6 +26,19 @@ public class ErrorType {
      * @throws IllegalArgumentException if absentKeys is not null when not ABSENT_KEY or if null or empty when it is
      */
     public ErrorType(@NonNull Type type, List<String> absentKeys) {
+        ErrorType.checkCorrespond(type, absentKeys);
+        this.type = type;
+        switch (type) {
+            case ABSENT_KEY -> {
+                this.absentKeys = absentKeys;
+            }
+        }
+    }
+
+    /**
+     * @throws IllegalArgumentException if absentKeys is not null when not ABSENT_KEY or if null or empty when it is
+     */
+    public static void checkCorrespond(@NonNull Type type, List<String> absentKeys) throws IllegalArgumentException {
         switch (type) {
             case ABSENT_KEY -> {
                 if (absentKeys == null || absentKeys.isEmpty()) {
@@ -36,12 +49,6 @@ public class ErrorType {
                 if (absentKeys != null) {
                     throw new IllegalArgumentException("Error type is not absent key, so the list with absent keys should be null");
                 }
-            }
-        }
-        this.type = type;
-        switch (type) {
-            case ABSENT_KEY -> {
-                this.absentKeys = absentKeys;
             }
         }
     }

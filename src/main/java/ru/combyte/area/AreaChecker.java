@@ -23,14 +23,14 @@ public class AreaChecker {
      */
     public static Shot shot(AreaID areaID, double x, double y, double scope, String login) throws UnsupportedOperationException {
         long calculationsBeginTime = System.nanoTime();
+        if (!supportedAreaCheckers.containsKey(areaID.getAreaID())) {
+            throw new UnsupportedOperationException("areaID is unsupported");
+        }
         var shot = new Shot();
         shot.setX(x);
         shot.setY(y);
         shot.setScope(scope);
         shot.setAreaID(areaID.getAreaID());
-        if (!supportedAreaCheckers.containsKey(areaID.getAreaID())) {
-            throw new UnsupportedOperationException("areaID is unsupported");
-        }
         shot.setHit(supportedAreaCheckers.get(areaID.getAreaID()).test(shot));
         shot.setDatetime(new Date());
         shot.setOwnerLogin(login);
